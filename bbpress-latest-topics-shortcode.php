@@ -37,7 +37,7 @@ class Bb_Pootle {
 				/**
 				 * Forums
 				 */
-				'bbpootle-forum-index'		=>		array( $this, 'display_chosen_topics' ),			
+				'bbpootle-forum-index'		=>		array( $this, 'display_chosen_forums' ),			
 			)
 		);
 	}
@@ -113,13 +113,20 @@ class Bb_Pootle {
 	 * @param  string $content [description]
 	 * @return string
 	 */
-	public function display_chosen_topics( $attr, $content = '' ) {
+	public function display_chosen_forums( $attr, $content = '' ) {
 		
 		// Sanity check required info
-		if ( !empty( $content ) || ( empty( $attr['forum_id'] ) ) )
+		if ( !empty( $content ) )
 			return $content;
-
 		$this->unset_globals();
+
+		//if no forum_id then show all
+		if( empty( $attr['forum_id'] ) ) {
+			$bbp_shortcodes = bbpress()->shortcodes;
+			return $bbp_shortcodes->display_forum_index();
+		}
+
+		
 
 		global $forum;
 		$forum = $attr['forum_id'];
