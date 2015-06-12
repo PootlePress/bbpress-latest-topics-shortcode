@@ -158,7 +158,7 @@ class Bb_Pootle {
 		$this->unset_globals();
 
 		//display all topic index when no id attribute pass
-		if( empty( $attr['id'] ) ) {
+		if( empty( $attr['forum_id'] ) ) {
 
 			$bbp_shortcodes = bbpress()->shortcodes;
 			return $bbp_shortcodes->display_topic_index();
@@ -167,7 +167,7 @@ class Bb_Pootle {
 
 		global $forum;
 
-		$forum = $attr['id'];
+		$forum = $attr['forum_id'];
 
 
 		// Filter the query
