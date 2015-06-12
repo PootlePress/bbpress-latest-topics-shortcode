@@ -37,7 +37,9 @@ class Bb_Pootle {
 				/**
 				 * Forums
 				 */
-				'bbpootle-forum-index'		=>		array( $this, 'display_chosen_forums' ),			
+				'bbpootle-forum-index'		=>		array( $this, 'display_chosen_forums' ),
+
+				'bbpootle-topic-index'		=>		array( $this, 'display_chosen_topics' ),	
 			)
 		);
 	}
@@ -132,7 +134,7 @@ class Bb_Pootle {
 		$forum = $attr['forum_id'];
 
 		if ( ! bbp_is_forum_archive() ) {
-			add_filter( 'bbp_before_has_forums_parse_args', array( $this, 'display_forum' ) );
+			add_filter( 'bbp_before_has_forums_parse_args', array( $this, 'display_forum_query_args' ) );
 		}
 
 		// Start output buffer
@@ -147,12 +149,50 @@ class Bb_Pootle {
 
 	}
 
+	
+	function display_chosen_topics( $attr, $content = '' ) {
+
+		//sanity check
+		if( !empty( $content ) ) return $content;
+
+		$this->unset_globals();
+
+		//display all topic index when no id attribute pass
+		if( empty( $attr['id'] ) ) {
+
+			$bbp_shortcodes = bbpress()->shortcodes;
+			return $bbp_shortcodes->display_topic_index();
+
+		}
+
+		global $forum;
+
+		$forum = $attr['id'];
+
+
+		// Filter the query
+		if ( ! bbp_is_topic_archive() ) {
+			add_filter( 'bbp_before_has_topics_parse_args', array( $this, 'display_topic_query_args' ) );
+		}
+
+		// Start output buffer
+		$this->start( 'bbp_topic_archive' );
+
+		// Output template
+		bbp_get_template_part( 'content', 'archive-topic' );
+
+		// Return contents of output buffer
+		return $this->end();
+
+
+	}
+
 	/**
 	 * Put the right value to our query args
 	 * @param  array $args this will be the argument we will parse to query specific forum
 	 * @return array       enhanced argument
 	 */
-	function display_forum( $args ) {
+	function display_forum_query_args( $args ) {
 		global $forum ;
 		
 		
@@ -162,6 +202,18 @@ class Bb_Pootle {
 		$args['post__in'] = $forums;
 		$args['post_parent'] = '';
 		$args['orderby'] = 'post__in';
+		return $args;
+	}
+
+	function display_topic_query_args( $args ) {
+		global $forum;
+		// split the string into pieces
+		$forums = explode(',', $forum);
+		$args['author']        = 0;
+		$args['show_stickies'] = true;
+		$args['order']         = 'DESC';
+		$args['post_parent']	= '';
+		$args['post_parent__in'] = $forums;
 		return $args;
 	}	
 
